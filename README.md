@@ -16,4 +16,4 @@ Feel free to do whatever you want with the code!
 
 # Legal Disclaimer 
 
-The author is in no way responsible for any illegal use of this software. It is provided purely as an educational proof of concept. I am also not responsible for any damages or mishaps that may happen in the course of using this software. Use at your own risk.
+The author is in no way responsible for any illegal use of this software. I am also not responsible for any damages or mishaps that may happen in the course of using this software. Use at your own risk.
