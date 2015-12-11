@@ -1,4 +1,4 @@
-# Citizenship & Immigration Canada (CIC) Automation
+# GoCIC - a Citizenship & Immigration Canada (CIC) Automation Tool
 Automatically retrieves your Citizenship &amp; Immigration Canada (CIC)'s Citizenship File, checks for update, and sends you an email if there was any change noticed. 
 
 Mail Server & CIC Requests (multiple) can be configured in mailserver.json and cicapplications.json. 
