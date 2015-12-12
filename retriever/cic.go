@@ -15,7 +15,6 @@ import (
 	"os"
 	"regexp"
 	"strings"
-	"github.com/Sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -318,7 +317,7 @@ func (cicFile *CICFile) SaveToFile() error {
 	if e != nil {
 		return e
 	}
-	//fmt.Fprintf(os.Stderr, "%d bytes successfully written to file\n", n)
+
 	return nil
 }
 
@@ -333,18 +332,17 @@ func (cicFile *CICFile) SendEmail() error {
 	viper.AddConfigPath(".")          // optionally look for config in the working directory
 	err := viper.ReadInConfig()       // Find and read the config file
 	if err != nil {                   // Handle errors reading the config file
-		logrus.Errorf("Could not read email server settings %s \n", err)
 		return err
 	}
 
-	var emailSender email.EmailUser
-	emailSender.Username = viper.GetString("Username")
-	emailSender.Password = viper.GetString("Password")
-	emailSender.EmailServer = viper.GetString("EmailServer")
-	emailSender.Port = viper.GetInt("Port")
+	var sender email.EmailUser
+	sender.Username = viper.GetString("Username")
+	sender.Password = viper.GetString("Password")
+	sender.EmailServer = viper.GetString("EmailServer")
+	sender.Port = viper.GetInt("Port")
 
 	//From
-	from := mail.Address{fmt.Sprintf("%v Citizenship [Automated]", (strings.SplitN(cicFile.Name, " ", 1))[0]), emailSender.Username}
+	from := mail.Address{fmt.Sprintf("%v Citizenship [Automated]", (strings.SplitN(cicFile.Name, " ", 1))[0]), sender.Username}
 
 	//Subject
 	subject := "Citizenship Update"
@@ -355,27 +353,38 @@ func (cicFile *CICFile) SendEmail() error {
 	//Endname
 	endname := "Peter's Automated System"
 
-	email.SendEmail(from, cicFile.Emails, subject, body, endname, emailSender)
+	err = sender.SendEmail(from, cicFile.Emails, subject, body, endname)
+	if err != nil {
+		return err
+	}
 
 	return nil
 
 }
 
-func (requester *CICRequest) TimedRefresh() {
+func (requester *CICRequest) TimedRefresh() error {
 
 	newFile, err := requester.RetrieveCitizenshipFile()
 	if err != nil {
-		//return err
-		return
+		return err
 	}
 
 	//Retrieve Previously Saved File
-	previousFile, err := LoadFromFile(newFile.ID)
+	previousFile, loadErr := LoadFromFile(newFile.ID)
+
 	//Save New File
-	newFile.SaveToFile()
-	if err != nil {
+	saveErr := newFile.SaveToFile()
+	if saveErr != nil {
+		return saveErr
+	}
+
+	//If previousfile load error, just send an email with new file
+	if loadErr != nil {
 		err = newFile.SendEmail()
-		return
+		if err != nil {
+			return err
+		}
+		return nil
 	}
 
 	//Compare 2 files
@@ -384,23 +393,37 @@ func (requester *CICRequest) TimedRefresh() {
 	//If updated, notify me by email
 	if !equalFiles {
 		//Send an email
-		newFile.SendEmail()
+		err = newFile.SendEmail()
+		if err != nil {
+			return err
+		}
+		return nil
+
 	}
+
+
+	return nil
 
 }
 
-func (requester *CICRequest) ForcedRefresh() {
+func (requester *CICRequest) ForcedRefresh() error {
 
 	newFile, err := requester.RetrieveCitizenshipFile()
 	if err != nil {
-		//return err
-		return
+		return err
 	}
 
 	//Save New File
-	newFile.SaveToFile()
+	err = newFile.SaveToFile()
+	if err != nil {
+		return err
+	}
 
 	//Send an email
-	newFile.SendEmail()
+	err = newFile.SendEmail()
+	if err != nil {
+		return err
+	}
+	return nil
 
 }

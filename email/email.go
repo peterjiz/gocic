@@ -29,7 +29,7 @@ type SmtpTemplateData struct {
 //http://nathanleclaire.com/blog/2013/12/17/sending-email-from-gmail-using-golang/
 //https://gist.github.com/nathanleclaire/8662755
 //https://gist.github.com/chrisgillis/10888032
-func SendEmail(from mail.Address, recipients []string, subject, body, endname string, emailSender EmailUser) {
+func (emailSender *EmailUser) SendEmail(from mail.Address, recipients []string, subject, body, endname string) error {
 	const emailTemplate = `From: {{.From}}
 To: {{.To}}
 Subject: {{.Subject}}
@@ -54,13 +54,13 @@ Subject: {{.Subject}}
 	t := template.New("emailTemplate")
 	if t, err = t.Parse(emailTemplate); err != nil {
 		log.Print("error trying to parse mail template ", err)
-		return
+		return err
 	}
 
 	// Apply the values we have initialized in our struct context to the template.
 	if err = t.Execute(&doc, context); err != nil {
 		log.Print("error trying to execute mail template ", err)
-		return
+		return err
 	}
 
 	// Authenticate with Email Server (analagous to logging in to your Email account in the browser)
@@ -71,6 +71,7 @@ Subject: {{.Subject}}
 		err = smtp.SendMail(emailSender.EmailServer+":"+strconv.Itoa(emailSender.Port), auth, emailSender.Username, recipients, doc.Bytes())
 		if err != nil {
 			log.Print("ERROR: attempting to send a mail ", err)
+			return err
 		}
 	} else {
 		// TLS config
@@ -84,47 +85,49 @@ Subject: {{.Subject}}
 		// from the very beginning (no starttls)
 		conn, err := tls.Dial("tcp", emailSender.EmailServer+":"+strconv.Itoa(emailSender.Port), tlsconfig)
 		if err != nil {
-			log.Panic(err)
+			return err
 		}
 
 		c, err := smtp.NewClient(conn, emailSender.EmailServer)
 		if err != nil {
-			log.Panic(err)
+			return err
 		}
 
 		// Auth
 		if err = c.Auth(auth); err != nil {
-			log.Panic(err)
+			return err
 		}
 
 		// To && From
 		if err = c.Mail(from.Address); err != nil {
-			log.Panic(err)
+			return err
 		}
 
 		for _, receiver := range recipients {
 			if err = c.Rcpt(receiver); err != nil {
-				log.Panic(err)
+				return err
 			}
 		}
 
 		// Data
 		w, err := c.Data()
 		if err != nil {
-			log.Panic(err)
+			return err
 		}
 
 		_, err = w.Write(doc.Bytes())
 		if err != nil {
-			log.Panic(err)
+			return err
 		}
 
 		err = w.Close()
 		if err != nil {
-			log.Panic(err)
+			return err
 		}
 
 		c.Quit()
 	}
+
+	return nil
 
 }
