@@ -1,9 +1,12 @@
 # GoCIC - a Citizenship & Immigration Canada (CIC) Automation Tool
 Automatically retrieves your Citizenship &amp; Immigration Canada (CIC)'s Citizenship File, checks for updates, and sends you an email if there was any change noticed. 
 
+
 GoCIC does 2 things: 
 -It runs a Tick job that will automatically check for updates on your file every 15 mins and send you an email if changes were detected.
+
 -It runs as a server on port 80 and listens for update requests at www.example.com/refresh or localhost/refresh and informs you of your current status via email.
+
 
 How to use: 
 Enter your email account settings in mailserver.json 
@@ -15,12 +18,7 @@ Feel free to do whatever you want with the code!
 
 
 # Thanks 
-Parts of sjakub' script were forked from: 
-http://www.canadavisa.com/canada-immigration-discussion-board/ecas-fetching-script-t385049.0.html 
-
-or
-
-http://pastebin.com/yDU0P5Z4
+Parts of sjakub' script were forked from http://bit.ly/1mJnr0e or http://pastebin.com/yDU0P5Z4
 
 
 # Legal Disclaimer 
