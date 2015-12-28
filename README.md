@@ -5,7 +5,6 @@ Automatically retrieves your Citizenship &amp; Immigration Canada (CIC)'s Citize
 GoCIC does 2 things: 
 
 -It runs a Tick job that will automatically check for updates on your file every 15 mins and send you an email if changes were detected.
-
 -It runs as a server on port 80 and listens for update requests at www.example.com/refresh or localhost/refresh and informs you of your current status via email.
 
 
