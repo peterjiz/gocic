@@ -10,9 +10,10 @@ GoCIC does 2 things:
 
 
 How to use: 
+
 Enter your email account settings in mailserver.json 
 
-Enter as many CIC applications you would like checked, and the corresponding emails to notify.
+Enter as many CIC applications, in cicapplications.json, as you would like checked, and the corresponding emails to notify.
 
 
 A working example cannot be provided for security reasons!
